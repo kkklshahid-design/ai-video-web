@@ -1,13 +1,13 @@
 import os
 from dotenv import load_dotenv
-from google import genai
+import google.generativeai as genai
 from PIL import Image
 
 # Load environment variables (.env file)
 load_dotenv()
 
 # Initialize the Gemini Client
-client = genai.Client()
+genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 def analyze_my_image():
     # Added your exact sidebar filename to the check list
