@@ -20,15 +20,16 @@ if uploaded_file is not None:
     
     # 2. When button is clicked, save the result to session_state
     if st.button("Analyze Image"):
-        st.write("Analyzing...")
-        try:
-            model = genai.GenerativeModel('gemini-1.5-flash')
-            response = model.generate_content(["Describe this image in detail", image])
-            st.session_state.analysis_result = response.text
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
+        # We use a spinner to show the process is working
+        with st.spinner('Analyzing...'):
+            try:
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(["Describe this image in detail", image])
+                st.session_state.analysis_result = response.text
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
 
-# 3. Always check if a result exists in memory and display it
+# 3. Always show the result if it exists in session_state
 if st.session_state.analysis_result:
     st.subheader("Gemini's Analysis Report:")
     st.write(st.session_state.analysis_result)
