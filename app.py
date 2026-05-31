@@ -9,40 +9,27 @@ load_dotenv()
 # Initialize the Gemini Client
 genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
-def analyze_my_image():
-    # Added your exact sidebar filename to the check list
-    possible_names = ["test.jpg.jpg!.JPG", "test.jpg.jpg!", "test.jpg", "test"]
-    image_filename = None
+import streamlit as st
 
-    # Check which file name actually exists in your folder
-    for name in possible_names:
-        if os.path.exists(name):
-            image_filename = name
-            break
+st.title("AI Image Analyzer")
 
-    if image_filename is None:
-        print("❌ Error: Could not find your picture in the folder!")
-        print("Make sure your photo is inside 'ai-video-web' next to app.py.")
-        return
+# Let the user upload an image
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-    print(f"\n🚀 Found your image file: '{image_filename}'!")
-    try:
-        # Open your image safely
-        img = Image.open(image_filename)
-        
-        # Use the free tier Gemini model to read it
-        print("Analyzing your photo with Gemini... please wait...")
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=[img, "Describe this image in deep detail and tell me exactly what you see."]
-        )
-        
-        print("\n✨ --- GEMINI'S ANALYSIS REPORT --- ✨")
-        print(response.text)
-        print("---------------------------------------")
+if uploaded_file is not None:
+    # Display the image
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    
+    # Analyze button
+    if st.button("Analyze Image"):
+        st.write("Analyzing...")
+        try:
+            # Using the genai model initialized earlier
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            response = model.generate_content(["Describe this image in detail", image])
             
-    except Exception as e:
-        print(f"An error occurred while reading the image: {e}")
-
-if __name__ == "__main__":
-    analyze_my_image()
+            st.subheader("Gemini's Analysis Report:")
+            st.write(response.text)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
